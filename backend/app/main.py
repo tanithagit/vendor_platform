@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from app.api.v1 import auth
+from app.api.v1 import auth, employees  # ← add employees
 
 app = FastAPI(
     title="Procurement Platform API",
@@ -9,7 +9,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -20,6 +19,7 @@ app.add_middleware(
 
 # Register routers
 app.include_router(auth.router)
+app.include_router(employees.router)  # ← add this
 
 
 @app.get("/")
@@ -32,7 +32,6 @@ def health_check():
     return {"status": "healthy"}
 
 
-# Override OpenAPI schema to use Bearer token input
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
@@ -44,7 +43,6 @@ def custom_openapi():
         routes=app.routes,
     )
 
-    # Change security scheme to Bearer token (paste method)
     openapi_schema["components"]["securitySchemes"] = {
         "BearerAuth": {
             "type": "http",
@@ -53,7 +51,6 @@ def custom_openapi():
         }
     }
 
-    # Apply to all routes
     for path in openapi_schema.get("paths", {}).values():
         for method in path.values():
             method["security"] = [{"BearerAuth": []}]
