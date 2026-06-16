@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-from app.api.v1 import auth, employees, managers, vendors # ← add employees
+from app.api.v1 import auth, employees, managers, vendors, admin # ← add employees
 
 app = FastAPI(
     title="Procurement Platform API",
@@ -21,7 +21,8 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(employees.router)  # ← add this
 app.include_router(managers.router)
-app.include_router(vendors.router)  
+app.include_router(vendors.router)
+app.include_router(admin.router)  
 
 @app.get("/")
 def root():
