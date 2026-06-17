@@ -18,7 +18,10 @@ from app.schemas.purchase_order import PurchaseOrderCreate, PurchaseOrderRespons
 from app.schemas.invoice import InvoiceResponse
 from app.schemas.payment import PaymentCreate, PaymentResponse
 from app.services.stripe_service import create_payment_intent, create_payment_link
-
+from app.services.email_service import (
+    send_purchase_order_email,
+    send_payment_completed_email
+)
 router = APIRouter(
     prefix="/api/v1/admin",
     tags=["Admin"]
@@ -206,13 +209,21 @@ def create_purchase_order(
     )
 
     db.add(new_po)
-
-    # Update request status to ordered
     purchase_request.status = RequestStatus.ordered
     db.commit()
     db.refresh(new_po)
 
+    # Send email to vendor
+    send_purchase_order_email(
+        vendor_email=vendor.email,
+        vendor_name=vendor.vendor_name,
+        order_number=order_number,
+        order_id=new_po.id,
+        total_amount=new_po.total_amount
+    )
+
     return new_po
+    
 
 
 @router.get(
@@ -344,15 +355,27 @@ def complete_payment(
     # Complete the payment
     payment.status = PaymentStatus.completed
     payment.paid_at = datetime.utcnow()
-
-    # ⚠️ Critical Rule: Only mark invoice paid AFTER payment completes
-    invoice = db.query(Invoice).filter(
-        Invoice.id == payment.invoice_id
-    ).first()
     invoice.payment_status = PaymentStatus.completed
-
     db.commit()
     db.refresh(payment)
+
+    # Get vendor details for email
+    purchase_order = db.query(PurchaseOrder).filter(
+        PurchaseOrder.id == invoice.purchase_order_id
+    ).first()
+    vendor = db.query(Vendor).filter(
+        Vendor.id == purchase_order.vendor_id
+    ).first()
+
+    # Send payment confirmation email to vendor
+    if vendor:
+        send_payment_completed_email(
+            vendor_email=vendor.email,
+            vendor_name=vendor.vendor_name,
+            order_number=purchase_order.order_number,
+            payment_id=payment.id,
+            amount=payment.amount
+        )
 
     return {
         "message": "Payment completed successfully",

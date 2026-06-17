@@ -7,6 +7,10 @@ from app.core.dependencies import get_current_manager
 from app.models import User, PurchaseRequest
 from app.models.enums import RequestStatus
 from app.schemas.purchase_request import PurchaseRequestResponse
+from app.services.email_service import (
+    send_request_approved_email,
+    send_request_rejected_email
+)
 
 router = APIRouter(
     prefix="/api/v1/manager",
@@ -117,12 +121,25 @@ def approve_request(
         )
 
     # Approve the request
+    # Approve the request
     purchase_request.status = RequestStatus.approved
     db.commit()
     db.refresh(purchase_request)
 
-    return purchase_request
+    # Send email to employee
+    employee = db.query(User).filter(
+        User.id == purchase_request.employee_id
+    ).first()
+    if employee:
+        send_request_approved_email(
+            employee_email=employee.email,
+            employee_name=employee.name,
+            request_title=purchase_request.title,
+            request_id=purchase_request.id,
+            amount=purchase_request.amount
+        )
 
+    return purchase_request
 
 # ── Reject Request ────────────────────────────────────────
 @router.patch(
@@ -167,13 +184,25 @@ def reject_request(
         )
 
     # Reject the request
+    # Reject the request
     purchase_request.status = RequestStatus.rejected
     db.commit()
     db.refresh(purchase_request)
 
+    # Send email to employee
+    employee = db.query(User).filter(
+        User.id == purchase_request.employee_id
+    ).first()
+    if employee:
+        send_request_rejected_email(
+            employee_email=employee.email,
+            employee_name=employee.name,
+            request_title=purchase_request.title,
+            request_id=purchase_request.id,
+            amount=purchase_request.amount
+        )
+
     return purchase_request
-
-
 # ── View Approval History ─────────────────────────────────
 @router.get(
     "/history",

@@ -14,6 +14,7 @@ from app.schemas.quotation import QuotationCreate, QuotationResponse
 from app.schemas.purchase_order import PurchaseOrderResponse
 from app.schemas.invoice import InvoiceCreate, InvoiceResponse
 from app.services.cloudinary_service import upload_file
+from app.services.email_service import send_invoice_uploaded_email
 
 router = APIRouter(
     prefix="/api/v1/vendor",
@@ -286,8 +287,20 @@ def upload_invoice(
     db.commit()
     db.refresh(new_invoice)
 
-    return new_invoice
+    # Notify admin about invoice
+    admin_users = db.query(User).filter(
+        User.role == "admin"
+    ).all()
+    for admin in admin_users:
+        send_invoice_uploaded_email(
+            admin_email=admin.email,
+            vendor_name=vendor.vendor_name,
+            order_number=purchase_order.order_number,
+            invoice_id=new_invoice.id,
+            amount=new_invoice.amount
+        )
 
+    return new_invoice
 
 # ── Upload Invoice Document ───────────────────────────────
 @router.post(
