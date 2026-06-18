@@ -6,6 +6,12 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 
+// Employee Pages
+import EmployeeDashboard from './pages/employee/EmployeeDashboard';
+import MyRequestsPage from './pages/employee/MyRequestsPage';
+import NewRequestPage from './pages/employee/NewRequestPage';
+import RequestDetailPage from './pages/employee/RequestDetailPage';
+
 const App = () => {
   const { user } = useAuth();
 
@@ -26,30 +32,57 @@ const App = () => {
       />
 
       {/* Employee Routes */}
-      <Route path="/employee/*" element={
+      <Route path="/employee/dashboard" element={
         <ProtectedRoute allowedRole="employee">
-          <div>Employee Pages Coming Soon</div>
+          <EmployeeDashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/employee/requests" element={
+        <ProtectedRoute allowedRole="employee">
+          <MyRequestsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/employee/requests/new" element={
+        <ProtectedRoute allowedRole="employee">
+          <NewRequestPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/employee/requests/:id" element={
+        <ProtectedRoute allowedRole="employee">
+          <RequestDetailPage />
         </ProtectedRoute>
       } />
 
-      {/* Manager Routes */}
+      {/* Manager Routes - Coming Soon */}
       <Route path="/manager/*" element={
         <ProtectedRoute allowedRole="manager">
-          <div>Manager Pages Coming Soon</div>
+          <div className="p-8 text-center">
+            <h1 className="text-2xl font-bold">
+              Manager Dashboard Coming Soon
+            </h1>
+          </div>
         </ProtectedRoute>
       } />
 
-      {/* Vendor Routes */}
+      {/* Vendor Routes - Coming Soon */}
       <Route path="/vendor/*" element={
         <ProtectedRoute allowedRole="vendor">
-          <div>Vendor Pages Coming Soon</div>
+          <div className="p-8 text-center">
+            <h1 className="text-2xl font-bold">
+              Vendor Dashboard Coming Soon
+            </h1>
+          </div>
         </ProtectedRoute>
       } />
 
-      {/* Admin Routes */}
+      {/* Admin Routes - Coming Soon */}
       <Route path="/admin/*" element={
         <ProtectedRoute allowedRole="admin">
-          <div>Admin Pages Coming Soon</div>
+          <div className="p-8 text-center">
+            <h1 className="text-2xl font-bold">
+              Admin Dashboard Coming Soon
+            </h1>
+          </div>
         </ProtectedRoute>
       } />
 
