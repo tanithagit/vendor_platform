@@ -19,7 +19,7 @@ with open(env_path, "r", encoding="utf-8-sig") as f:  # utf-8-sig strips BOM
             env_vars[key.strip()] = value.strip()
 
 DATABASE_URL = env_vars.get("DATABASE_URL")
-print(f"DATABASE_URL: {DATABASE_URL}")
+
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

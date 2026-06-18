@@ -15,6 +15,8 @@ from app.schemas.purchase_request import (
     PurchaseRequestResponse
 )
 from app.services.cloudinary_service import upload_file
+from app.services.email_service import send_request_submitted_email
+from app.models import User
 
 router = APIRouter(
     prefix="/api/v1/employee",
@@ -90,8 +92,21 @@ def submit_purchase_request(
     db.commit()
     db.refresh(purchase_request)
 
-    return purchase_request
+    # Send email to all managers
+    managers = db.query(User).filter(
+        User.role == "manager"
+    ).all()
+    for manager in managers:
+        send_request_submitted_email(
+            manager_email=manager.email,
+            manager_name=manager.name,
+            employee_name=current_user.name,
+            request_title=purchase_request.title,
+            request_id=purchase_request.id,
+            amount=purchase_request.amount
+        )
 
+    return purchase_request
 
 # ── Upload Document ───────────────────────────────────────
 @router.post(
