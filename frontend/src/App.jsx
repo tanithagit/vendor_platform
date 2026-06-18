@@ -12,6 +12,12 @@ import MyRequestsPage from './pages/employee/MyRequestsPage';
 import NewRequestPage from './pages/employee/NewRequestPage';
 import RequestDetailPage from './pages/employee/RequestDetailPage';
 
+// Manager Pages
+import ManagerDashboard from './pages/manager/ManagerDashboard';
+import ReviewRequestsPage from './pages/manager/ReviewRequestsPage';
+import ManagerRequestDetail from './pages/manager/ManagerRequestDetail';
+import HistoryPage from './pages/manager/HistoryPage';
+
 const App = () => {
   const { user } = useAuth();
 
@@ -21,7 +27,6 @@ const App = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      {/* Default redirect */}
       <Route
         path="/"
         element={
@@ -53,14 +58,25 @@ const App = () => {
         </ProtectedRoute>
       } />
 
-      {/* Manager Routes - Coming Soon */}
-      <Route path="/manager/*" element={
+      {/* Manager Routes */}
+      <Route path="/manager/dashboard" element={
         <ProtectedRoute allowedRole="manager">
-          <div className="p-8 text-center">
-            <h1 className="text-2xl font-bold">
-              Manager Dashboard Coming Soon
-            </h1>
-          </div>
+          <ManagerDashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/manager/requests" element={
+        <ProtectedRoute allowedRole="manager">
+          <ReviewRequestsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/manager/requests/:id" element={
+        <ProtectedRoute allowedRole="manager">
+          <ManagerRequestDetail />
+        </ProtectedRoute>
+      } />
+      <Route path="/manager/history" element={
+        <ProtectedRoute allowedRole="manager">
+          <HistoryPage />
         </ProtectedRoute>
       } />
 
@@ -86,7 +102,6 @@ const App = () => {
         </ProtectedRoute>
       } />
 
-      {/* 404 */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
