@@ -18,6 +18,12 @@ import ReviewRequestsPage from './pages/manager/ReviewRequestsPage';
 import ManagerRequestDetail from './pages/manager/ManagerRequestDetail';
 import HistoryPage from './pages/manager/HistoryPage';
 
+// Vendor Pages
+import VendorDashboard from './pages/vendor/VendorDashboard';
+import QuotationsPage from './pages/vendor/QuotationsPage';
+import PurchaseOrdersPage from './pages/vendor/PurchaseOrdersPage';
+import InvoicesPage from './pages/vendor/InvoicesPage';
+
 const App = () => {
   const { user } = useAuth();
 
@@ -27,14 +33,11 @@ const App = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      <Route
-        path="/"
-        element={
-          user
-            ? <Navigate to={`/${user.role}/dashboard`} replace />
-            : <Navigate to="/login" replace />
-        }
-      />
+      <Route path="/" element={
+        user
+          ? <Navigate to={`/${user.role}/dashboard`} replace />
+          : <Navigate to="/login" replace />
+      } />
 
       {/* Employee Routes */}
       <Route path="/employee/dashboard" element={
@@ -80,14 +83,25 @@ const App = () => {
         </ProtectedRoute>
       } />
 
-      {/* Vendor Routes - Coming Soon */}
-      <Route path="/vendor/*" element={
+      {/* Vendor Routes */}
+      <Route path="/vendor/dashboard" element={
         <ProtectedRoute allowedRole="vendor">
-          <div className="p-8 text-center">
-            <h1 className="text-2xl font-bold">
-              Vendor Dashboard Coming Soon
-            </h1>
-          </div>
+          <VendorDashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/vendor/quotations" element={
+        <ProtectedRoute allowedRole="vendor">
+          <QuotationsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/vendor/purchase-orders" element={
+        <ProtectedRoute allowedRole="vendor">
+          <PurchaseOrdersPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/vendor/invoices" element={
+        <ProtectedRoute allowedRole="vendor">
+          <InvoicesPage />
         </ProtectedRoute>
       } />
 
@@ -102,7 +116,8 @@ const App = () => {
         </ProtectedRoute>
       } />
 
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="*"
+        element={<Navigate to="/login" replace />} />
     </Routes>
   );
 };
